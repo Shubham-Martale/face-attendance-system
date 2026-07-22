@@ -1,5 +1,5 @@
 streamlit==1.38.0
-opencv-python-headless==4.10.0.84
+opencv-python-headless==4.6.0.66
 deepface==0.0.93
 tensorflow==2.16.1
 tf-keras==2.16.0
@@ -10,3 +10,4 @@ Pillow==10.4.0
 reportlab==4.2.2
 plotly==5.22.0
 qrcode==7.4.2
+libsql

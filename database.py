@@ -8,6 +8,8 @@ SQLite database operations:
 """
 
 import sqlite3
+import streamlit as st
+import libsql
 import os
 from datetime import datetime, date
 
@@ -16,8 +18,10 @@ DB_PATH = os.path.join(DB_DIR, "attendance.db")
 
 
 def get_connection():
-    os.makedirs(DB_DIR, exist_ok=True)
-    conn = sqlite3.connect(DB_PATH, check_same_thread=False)
+    conn = libsql.connect(
+        database=st.secrets["TURSO_DATABASE_URL"],
+        auth_token=st.secrets["TURSO_AUTH_TOKEN"],
+    )
     conn.execute("PRAGMA foreign_keys = ON")
     return conn
 
