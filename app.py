@@ -24,7 +24,9 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-db.init_db()
+if "db_initialized" not in st.session_state:
+    db.init_db()
+    st.session_state["db_initialized"] = True
 fu.ensure_dirs()
 
 # ══════════════════════════════════════════════════════════════════
