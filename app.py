@@ -858,7 +858,7 @@ elif "Profile" in page:
 
         c1, c2, c3 = st.columns([1, 2, 2])
         with c1:
-            img_p = sd[4]
+            img_p = os.path.join(fu.KNOWN_FACES_DIR, f"{sd[0]}.jpg")
             if os.path.exists(img_p):
                 st.image(img_p, width=130)
             else:
@@ -1324,7 +1324,9 @@ elif "Manage" in page:
         st.markdown(f"<div style='color:#8b949e;font-size:.82rem;margin-bottom:10px;'>Showing {len(filtered)} of {len(students)}</div>", unsafe_allow_html=True)
 
         for s in filtered:
+           
             sid, name, dept, email, img_p, reg_on = s
+            img_p = os.path.join(fu.KNOWN_FACES_DIR, f"{sid}.jpg")
             rec_count = len(db.get_student_attendance(sid))
             with st.container():
                 st.markdown(f"""
@@ -1854,6 +1856,7 @@ elif "Gallery" in page:
             cols = st.columns(cols_per_row)
             for col, student in zip(cols, row):
                 sid, name, dept, email, img_path, reg_on = student
+                img_path = os.path.join(fu.KNOWN_FACES_DIR, f"{sid}.jpg")
                 s_sum  = summary.get(sid, (sid, name, dept, 0, None))
                 days   = s_sum[3]
                 pct    = min(days * 5, 100)  # visual indicator

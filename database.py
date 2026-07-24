@@ -26,9 +26,25 @@ def get_connection():
     return conn
 
 
-def init_db():
+def _init_db_once():
     conn = get_connection()
     cur = conn.cursor()
+    # ... (poora purana init_db ka andar wala code, waisa hi) ...
+    conn.commit()
+    conn.close()
+
+
+def init_db():
+    import time
+    last_error = None
+    for attempt in range(3):
+        try:
+            _init_db_once()
+            return
+        except Exception as e:
+            last_error = e
+            time.sleep(1)
+    raise last_error
 
     cur.execute("""
         CREATE TABLE IF NOT EXISTS students (
