@@ -28,6 +28,8 @@ if "db_initialized" not in st.session_state:
     db.init_db()
     st.session_state["db_initialized"] = True
 fu.ensure_dirs()
+db.sync_photos_to_disk(fu.KNOWN_FACES_DIR)
+
 
 # ══════════════════════════════════════════════════════════════════
 # PREMIUM CSS
@@ -732,12 +734,13 @@ elif "Register" in page:
                 if face_crop is None:
                     alert("❌ No face detected. Try better lighting.", "error")
                 else:
-                    path = fu.save_face_image(sid, img_bgr)
-                    db.add_student(sid, name, dept, email, path)
-                    db.log_activity(admin_user, "Register Student", f"{name} ({sid})")
-                    alert(f"✅ {name} ({sid}) registered successfully!", "success")
-                    preview = fu.draw_box(img_bgr.copy(), box, label=name)
-                    st.image(preview, channels="BGR", width=300)
+                   path = fu.save_face_image(sid, img_bgr)
+                   photo_bytes = fu.image_to_jpg_bytes(img_bgr)
+                   db.add_student(sid, name, dept, email, path, photo_bytes)
+                   db.log_activity(admin_user, "Register Student", f"{name} ({sid})")
+                   alert(f"✅ {name} ({sid}) registered successfully!", "success")
+                   preview = fu.draw_box(img_bgr.copy(), box, label=name)
+                   st.image(preview, channels="BGR", width=300)
 
     with tab2:
         sec("Bulk Import via CSV")

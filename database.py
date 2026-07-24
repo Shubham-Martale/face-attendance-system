@@ -98,6 +98,10 @@ def init_db():
         cur.execute("ALTER TABLE attendance ADD COLUMN is_late INTEGER DEFAULT 0")
     except Exception:
         pass
+    try:
+        cur.execute("ALTER TABLE students ADD COLUMN photo_blob BLOB")
+    except Exception:
+        pass
 
     conn.commit()
     conn.close()
@@ -162,14 +166,14 @@ def delete_subject(name):
 # Student CRUD
 # ------------------------------------------------------------------
 
-def add_student(student_id, name, department, email, image_path):
+def add_student(student_id, name, department, email, image_path, photo_bytes=None):
     conn = get_connection()
     cur = conn.cursor()
     cur.execute("""
-        INSERT INTO students (student_id, name, department, email, image_path, registered_on)
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO students (student_id, name, department, email, image_path, registered_on, photo_blob)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
     """, (student_id, name, department, email, image_path,
-          datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+          datetime.now().strftime("%Y-%m-%d %H:%M:%S"), photo_bytes))
     conn.commit()
     conn.close()
 
@@ -195,8 +199,8 @@ def student_exists(student_id):
 def delete_student(student_id):
     conn = get_connection()
     cur = conn.cursor()
-    cur.execute("DELETE FROM students WHERE student_id = ?", (student_id,))
     cur.execute("DELETE FROM attendance WHERE student_id = ?", (student_id,))
+    cur.execute("DELETE FROM students WHERE student_id = ?", (student_id,))
     conn.commit()
     conn.close()
 
@@ -623,3 +627,16 @@ def get_weekly_comparison():
     row = cur.fetchone()
     conn.close()
     return (row[0] or 0, row[1] or 0)
+
+def sync_photos_to_disk(known_faces_dir):
+    """Startup pe database se saari photos local known_faces folder mein likhta hai."""
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT student_id, photo_blob FROM students WHERE photo_blob IS NOT NULL")
+    rows = cur.fetchall()
+    conn.close()
+    for sid, blob in rows:
+        path = os.path.join(known_faces_dir, f"{sid}.jpg")
+        if not os.path.exists(path) and blob:
+            with open(path, "wb") as f:
+                f.write(blob)

@@ -114,3 +114,8 @@ def bytes_to_bgr(image_bytes):
     """Convert raw image bytes (e.g. from Streamlit camera input) to OpenCV BGR array."""
     arr = np.frombuffer(image_bytes, np.uint8)
     return cv2.imdecode(arr, cv2.IMREAD_COLOR)
+
+def image_to_jpg_bytes(image_bgr):
+    """Convert an OpenCV BGR image into JPG bytes (for saving to database)."""
+    success, buf = cv2.imencode(".jpg", image_bgr)
+    return buf.tobytes() if success else None
